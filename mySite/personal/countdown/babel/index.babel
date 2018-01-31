@@ -1,0 +1,120 @@
+// Card numbers
+const firstSecondCardNos = document.querySelectorAll('.js-second-first .number'),
+      lastSecondCardNos = document.querySelectorAll('.js-second-last .number'),
+      firstMinuteCardNos = document.querySelectorAll('.js-minute-first .number'),
+      lastMinuteCardNos = document.querySelectorAll('.js-minute-last .number'),
+      firstHourCardNos = document.querySelectorAll('.js-hour-first .number'),
+      lastHourCardNos = document.querySelectorAll('.js-hour-last .number'),
+      
+      // Cards
+      firstSecondCard = document.querySelector('.js-second-first'),
+      lastSecondCard = document.querySelector('.js-second-last'),
+      firstMinuteCard = document.querySelector('.js-minute-first'),
+      lastMinuteCard = document.querySelector('.js-minute-last'),
+      firstHourCard = document.querySelector('.js-hour-first'),
+      lastHourCard = document.querySelector('.js-hour-last');
+
+/* Set time before transitioning panels */
+(function setTime() {
+  const time = new Date(),
+        seconds = time.getSeconds(),
+        minutes = time.getMinutes(),
+        hours = time.getHours(),
+        secondDigits = getTimeDigits( seconds ), 
+        minuteDigits = getTimeDigits( minutes ), 
+        hourDigits = getTimeDigits( hours );
+   
+  setInitialTime( firstHourCardNos, lastHourCardNos, hourDigits ) // Hours 
+  setInitialTime( firstMinuteCardNos, lastMinuteCardNos, minuteDigits ) // Minutes
+  setInitialTime( firstSecondCardNos, lastSecondCardNos, secondDigits ) // Seconds
+}());
+
+/* Updates time with transitions */
+function updateTime() {
+  const time = new Date(),
+        seconds = time.getSeconds(),
+        minutes = time.getMinutes(),
+        hours = time.getHours(),
+        secondDigits = getTimeDigits( seconds ), 
+        minuteDigits = getTimeDigits( minutes ), 
+        hourDigits = getTimeDigits( hours );
+     
+  // First hour card
+  if( ( hourDigits[1] + minutes + seconds ) === 0  ) updateCard( firstHourCardNos, firstHourCard, hourDigits, 0 )
+  
+  // Last hour card
+  if( ( minutes + seconds ) === 0  ) updateCard( lastHourCardNos, lastHourCard, hourDigits, 1 )
+    
+  // First minute card
+  if( ( minuteDigits[1] + seconds ) === 0  ) updateCard( firstMinuteCardNos, firstMinuteCard, minuteDigits, 0 )
+  
+  // Last minute card
+  if( seconds === 0  ) updateCard( lastMinuteCardNos, lastMinuteCard, minuteDigits, 1 ) 
+  
+  // First second card
+  if( secondDigits[1] < 1 ) updateCard( firstSecondCardNos, firstSecondCard, secondDigits, 0 )
+  
+  // Last second card
+  updateCard( lastSecondCardNos, lastSecondCard, secondDigits, 1 )
+  
+  setTimeout( updateTime, 1000 )
+}
+
+/* ================================
+  Run Clock
+================================ */
+
+setTimeout( updateTime, 1000 )
+
+/* ================================
+  Helper Functions
+================================ */
+
+/* Separate time digits into array e.g 12 -> [1, 2] */
+function getTimeDigits( unit ) {
+  let firstDigit, lastDigit;
+
+  return unit < 10 ? [
+      firstDigit = 0, 
+      lastDigit = parseInt(unit.toString()[0])
+  ] : [
+      firstDigit = parseInt(unit.toString()[0]), 
+      lastDigit = parseInt(unit.toString()[1]) 
+  ]
+}
+
+/* Sets time before clock is animated  */
+function setInitialTime( firstCardArray, lastCardArray, digitArray ) {
+  firstCardArray[2].innerHTML = digitArray[0];
+  firstCardArray[3].innerHTML = digitArray[0];
+  lastCardArray[2].innerHTML = digitArray[1];
+  lastCardArray[3].innerHTML = digitArray[1];
+}
+
+/* Updates number element with current time digit */
+function updateNumber( numberElementArray, digitArray, arrayPosOne, arrayPosTwo, arrayPosThree ) {
+  numberElementArray[arrayPosOne].innerHTML = digitArray[arrayPosThree];
+  numberElementArray[arrayPosTwo].innerHTML = digitArray[arrayPosThree];
+}
+
+/* Styles current/next panel to transition out/in */
+function addClass( card ) {
+  card.classList.add('js-transition-card')
+}
+
+/* Resets panel styles for next transition */
+function removeClass( card ) {
+  card.classList.remove('js-transition-card')
+}
+
+/* Updates card with transition styles and time digit */
+function updateCard( numberElementArray, card, digitArray, digit ) { 
+  updateNumber( numberElementArray, digitArray, 0, 1, digit )
+  addClass( card )
+    
+  // Reset panel styles when panel transition has ended
+  card.addEventListener('transitionend', () => {
+    removeClass( card )   
+    updateNumber( numberElementArray, digitArray, 2, 3, digit )
+  })
+}

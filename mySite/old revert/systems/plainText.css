@@ -1,0 +1,9 @@
+body {
+/* unvisited link */
+a:link, a:visited. a:hover, a:active {
+    color: blue;
+}
+a:link, a:visited, a:hover, a:active {
+    text-decoration: none;
+}
+}
